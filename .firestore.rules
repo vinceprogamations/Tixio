@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isCompany() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.type == 'company';
+    }
+
+    match /users/{uid} {
+      allow read: if isSignedIn() && (uid == request.auth.uid || isCompany());
+      allow create: if isSignedIn() && uid == request.auth.uid;
+      allow update: if isSignedIn() && uid == request.auth.uid;
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if isCompany();
+      allow update: if isCompany();
+    }
+
+    match /tickets/{ticketId} {
+      allow read: if isSignedIn() && (resource.data.userUid == request.auth.uid || isCompany());
+      allow create: if isSignedIn() && request.resource.data.userUid == request.auth.uid;
+      allow update: if isCompany() && request.resource.data.organizerUid == request.auth.uid &&
+        request.resource.data.diff(resource.data).changedKeys().hasOnly(["usedAt", "usedBy"]);
+      allow delete: if false;
+    }
+  }
+}
+
+
