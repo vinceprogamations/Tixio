@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Regras para usuários
+    match /users/{userId} {
+      // Usuários podem ler e escrever apenas seus próprios dados
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Regras para eventos
+    match /events/{eventId} {
+      // Qualquer usuário autenticado pode ler eventos ativos
+      allow read: if request.auth != null && resource.data.active == true;
+      
+      // Apenas o organizador pode ler eventos inativos
+      allow read: if request.auth != null && 
+        request.auth.uid == resource.data.organizerUid;
+      
+      // Apenas o organizador pode criar, atualizar ou deletar seus eventos
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.organizerUid &&
+        request.resource.data.keys().hasAll(['organizerUid', 'organizerName', 'location', 'date', 'price', 'tickets', 'category', 'description', 'capacity', 'active', 'createdAt']) &&
+        request.resource.data.organizerUid is string &&
+        request.resource.data.organizerName is string &&
+        request.resource.data.location is string &&
+        request.resource.data.date is string &&
+        request.resource.data.price is number &&
+        request.resource.data.tickets is number &&
+        request.resource.data.category is string &&
+        request.resource.data.description is string &&
+        request.resource.data.capacity is number &&
+        request.resource.data.active is bool;
+      
+      allow update: if request.auth != null && 
+        request.auth.uid == resource.data.organizerUid;
+      
+      allow delete: if request.auth != null && 
+        request.auth.uid == resource.data.organizerUid;
+    }
+    
+    // Regras para tickets/ingressos
+    match /tickets/{ticketId} {
+      // Usuários podem ler apenas seus próprios tickets
+      allow read: if request.auth != null && 
+        (request.auth.uid == resource.data.userUid || 
+         request.auth.uid == resource.data.organizerUid);
+      
+      // Apenas usuários autenticados podem criar tickets
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userUid &&
+        request.resource.data.keys().hasAll(['userUid', 'eventId', 'organizerUid', 'quantity', 'code', 'createdAt']) &&
+        request.resource.data.userUid is string &&
+        request.resource.data.eventId is string &&
+        request.resource.data.organizerUid is string &&
+        request.resource.data.quantity is number &&
+        request.resource.data.code is string;
+      
+      // Apenas o organizador pode atualizar tickets (para validação)
+      allow update: if request.auth != null && 
+        request.auth.uid == resource.data.organizerUid;
+      
+      // Ninguém pode deletar tickets (para auditoria)
+      allow delete: if false;
+    }
+    
+    // Bloquear acesso a outras coleções
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
