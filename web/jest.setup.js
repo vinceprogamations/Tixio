@@ -93,3 +93,4 @@ Object.defineProperty(global, 'crypto', {
 
 // Configuração de timeout para testes
 jest.setTimeout(10000)
+

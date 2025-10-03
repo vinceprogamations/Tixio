@@ -317,3 +317,4 @@ describe('Performance Tests', () => {
     expect(filteredEvents.length).toBeLessThanOrEqual(100);
   });
 });
+

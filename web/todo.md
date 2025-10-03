@@ -3,80 +3,44 @@
 Guia de execução com ciclos: Refazer, Voltar, Avançar, Dividir em lotes.
 Cada lote possui tarefas com checkboxes para acompanhamento.
 
-## Lote 0 — Fundações (estado atual)
+## Lote 0 — Fundações ✅ CONCLUÍDO
 - [x] Scaffold Next.js + Firebase
 - [x] Autenticação: login/registro (pessoa/empresa)
 - [x] Dashboard empresa: perfil, criar eventos, listar/editar
 - [x] Lista pública de eventos e página de detalhes com compra
 
-Perguntas do ciclo:
-- Deseja refazer algo do Lote 0?
-- Deseja voltar e ajustar comportamentos do login/rotas?
-- Avançar para o Lote 1?
-- Dividir em mais lotes?
+## Lote 1 — Modelo de Evento e CRUD completo (Empresa) ✅ CONCLUÍDO
+- [x] Definir esquema do evento (categoria, descrição, local, data/hora, preço, capacidade, imagens)
+- [x] Atualizar formulários de criação/edição (incl. categoria, descrição, capacidade, imagens)
+- [x] Validações de formulário (campos obrigatórios, ranges, datas)
+- [x] Exibição de status (ativo/inativo, esgotado)
+- [x] Slug/ID amigável (opcional)
 
-## Lote 1 — Modelo de Evento e CRUD completo (Empresa)
-- [ ] Definir esquema do evento (categoria, descrição, local, data/hora, preço, capacidade, imagens)
-- [ ] Atualizar formulários de criação/edição (incl. categoria, descrição, capacidade, imagens)
-- [ ] Validações de formulário (campos obrigatórios, ranges, datas)
-- [ ] Exibição de status (ativo/inativo, esgotado)
-- [ ] Slug/ID amigável (opcional)
+## Lote 2 — Explorar público e filtros ✅ CONCLUÍDO
+- [x] Grid/Cards de eventos com paginação/scroll
+- [x] Filtros: categoria, faixa de preço, data (intervalo), cidade/local
+- [x] Ordenações: mais recentes, preço, data
+- [x] Barra de busca por texto (nome/descrição)
+- [x] Ajustar indexação no Firestore conforme necessário
 
-Perguntas do ciclo:
-- Refazer algo no formulário atual?
-- Voltar e ajustar campos obrigatórios?
-- Avançar para integração com storage de imagens?
-- Dividir upload de imagens em um sublote?
+## Lote 3 — Compra, ingressos e dashboard do usuário ✅ CONCLUÍDO
+- [x] Modelo de ingressos do usuário (coleção `tickets` ou subcoleções)
+- [x] Fluxo de compra com quantidade, checagem de estoque e transação
+- [x] Comprovante/QR Code (geração e exibição)
+- [x] Dashboard do usuário: histórico de compras, ingressos ativos, re-download
+- [x] Política de reembolso/cancelamento (definição inicial)
 
-## Lote 2 — Explorar público e filtros
-- [ ] Grid/Cards de eventos com paginação/scroll
-- [ ] Filtros: categoria, faixa de preço, data (intervalo), cidade/local
-- [ ] Ordenações: mais recentes, preço, data
-- [ ] Barra de busca por texto (nome/descrição)
-- [ ] Ajustar indexação no Firestore conforme necessário
+## Lote 4 — Relatórios e analytics (Empresa) ✅ CONCLUÍDO
+- [x] Visão geral de vendas por evento (faturamento, vendidos, restantes)
+- [x] Curva de vendas (séries temporais)
+- [x] Exportações (CSV)
+- [x] Integração com ferramentas externas (opcional)
 
-Perguntas do ciclo:
-- Refazer layout de listagem?
-- Voltar e ajustar filtros prioritários?
-- Avançar para performance (index/queries)?
-- Dividir filtros em entregas menores?
-
-## Lote 3 — Compra, ingressos e dashboard do usuário
-- [ ] Modelo de ingressos do usuário (coleção `tickets` ou subcoleções)
-- [ ] Fluxo de compra com quantidade, checagem de estoque e transação
-- [ ] Comprovante/QR Code (geração e exibição)
-- [ ] Dashboard do usuário: histórico de compras, ingressos ativos, re-download
-- [ ] Política de reembolso/cancelamento (definição inicial)
-
-Perguntas do ciclo:
-- Refazer a UX da compra?
-- Voltar e ajustar controle de estoque?
-- Avançar para QR Code e validação?
-- Dividir dashboard do usuário em sublotes?
-
-## Lote 4 — Relatórios e analytics (Empresa)
-- [ ] Visão geral de vendas por evento (faturamento, vendidos, restantes)
-- [ ] Curva de vendas (séries temporais)
-- [ ] Exportações (CSV)
-- [ ] Integração com ferramentas externas (opcional)
-
-Perguntas do ciclo:
-- Refazer indicadores mostrados?
-- Voltar e priorizar métricas diferentes?
-- Avançar para exportação?
-- Dividir relatórios por seção?
-
-## Lote 5 — Operações e qualidade
-- [ ] Regras de segurança Firestore (empresas editam só seus eventos; usuários só compram; etc.)
-- [ ] Testes mínimos de integração (compra, criação/edição evento)
-- [ ] Tratamento de erros e mensagens consistentes
-- [ ] Acessibilidade e responsividade
-
-Perguntas do ciclo:
-- Refazer algo das regras?
-- Voltar e ampliar cobertura de testes?
-- Avançar para melhorias de UX?
-- Dividir acessibilidade/responsividade em tarefas específicas?
+## Lote 5 — Operações e qualidade ✅ CONCLUÍDO
+- [x] Regras de segurança Firestore (empresas editam só seus eventos; usuários só compram; etc.)
+- [x] Testes mínimos de integração (compra, criação/edição evento)
+- [x] Tratamento de erros e mensagens consistentes
+- [x] Acessibilidade e responsividade
 
 ---
 
