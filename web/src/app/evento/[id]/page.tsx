@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { auth, db } from "@/controller";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, runTransaction, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
+import StripePaymentForm from "@/components/StripePaymentForm";
 
 export default function EventDetailsPage() {
   const params = useParams<{ id: string }>();
@@ -15,6 +16,8 @@ export default function EventDetailsPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [eventData, setEventData] = useState<any>(null);
   const [qty, setQty] = useState(1);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -22,6 +25,7 @@ export default function EventDetailsPage() {
         router.replace("/login");
         return;
       }
+      setUser(u);
       const ref = doc(db, "events", params.id);
       const snap = await getDoc(ref);
       if (!snap.exists()) {
@@ -35,41 +39,18 @@ export default function EventDetailsPage() {
     return () => unsub();
   }, [params.id, router]);
 
-  async function handlePurchase() {
-    if (!params.id) return;
-    setError(null);
-    setMsg(null);
-    setSaving(true);
-    try {
-      const bought = await runTransaction(db, async (trx) => {
-        const ref = doc(db, "events", params.id);
-        const snap = await trx.get(ref);
-        if (!snap.exists()) throw new Error("Evento indisponível");
-        const data = snap.data() as any;
-        const n = Math.max(1, Number(qty || 1));
-        const available = typeof data.tickets === "number" ? data.tickets : Number(data.tickets || 0);
-        if (available < n) throw new Error("Quantidade indisponível");
-        trx.update(ref, { tickets: available - n });
-        return n;
-      });
-      // Cria documento de tickets do usuário
-      const u = auth.currentUser;
-      if (!u) throw new Error("Sessão expirada");
-      const code = (typeof crypto !== 'undefined' && 'randomUUID' in crypto) ? (crypto as any).randomUUID() : `${params.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      await addDoc(collection(db, "tickets"), {
-        userUid: u.uid,
-        eventId: params.id,
-        organizerUid: eventData?.organizerUid || null,
-        quantity: bought,
-        code,
-        createdAt: serverTimestamp(),
-      });
-      setMsg("Compra realizada!");
-    } catch (e: any) {
-      setError(e?.message ?? "Falha na compra");
-    } finally {
-      setSaving(false);
-    }
+  function handlePaymentSuccess(ticketCode: string) {
+    setMsg(`Compra realizada com sucesso! Código do ingresso: ${ticketCode}`);
+    setShowPaymentForm(false);
+  }
+
+  function handlePaymentError(error: string) {
+    setError(error);
+    setShowPaymentForm(false);
+  }
+
+  function handlePaymentLoading(loading: boolean) {
+    setSaving(loading);
   }
 
   if (loading) {
@@ -103,11 +84,37 @@ export default function EventDetailsPage() {
             {error && <div className="alert alert-danger py-2">{error}</div>}
 
             <div className="d-flex gap-2 align-items-center mb-3">
-              <input type="number" min={1} className="form-control" style={{ maxWidth: 120 }} value={qty} onChange={(e)=>setQty(Number(e.target.value))} />
-              <button className="btn btn-warning" onClick={handlePurchase} disabled={saving || Number(eventData?.tickets || 0) <= 0 || eventData?.active === false}>
-              {saving ? "Processando..." : "Comprar ingresso"}
+              <input 
+                type="number" 
+                min={1} 
+                className="form-control" 
+                style={{ maxWidth: 120 }} 
+                value={qty} 
+                onChange={(e)=>setQty(Number(e.target.value))} 
+              />
+              <button 
+                className="btn btn-warning" 
+                onClick={() => setShowPaymentForm(true)} 
+                disabled={saving || Number(eventData?.tickets || 0) <= 0 || eventData?.active === false}
+              >
+                {saving ? "Processando..." : "Comprar ingresso"}
               </button>
             </div>
+
+            {showPaymentForm && user && (
+              <div className="mt-3">
+                <StripePaymentForm
+                  eventId={params.id}
+                  quantity={qty}
+                  price={Number(eventData?.price || 0)}
+                  userUid={user.uid}
+                  organizerUid={eventData?.organizerUid}
+                  onSuccess={handlePaymentSuccess}
+                  onError={handlePaymentError}
+                  onLoading={handlePaymentLoading}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
